@@ -1,0 +1,14 @@
+GET http://localhost:8000/api
+Accept: */*
+Cache-Control: no-cache
+
+<> 2020-03-11T055315.200.json
+
+###
+
+GET http://localhost:8080/api
+Accept: */*
+Cache-Control: no-cache
+
+###
+
