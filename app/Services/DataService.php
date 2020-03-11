@@ -12,6 +12,7 @@ class DataService
     private $sortby;
     private $sortdesc;
     private $limit;
+    private $jsonItems;
 
     /**
      * DataService constructor.
@@ -19,7 +20,7 @@ class DataService
      * @param $sortby - field for sorting
      * @param $sortdesc - is descending order
      */
-    public function __construct($limit, $sortby, $sortdesc)
+    public function __construct($limit = false, $sortby = false, $sortdesc = false)
     {
         $this->sortby = $sortby;
         $this->sortdesc = $sortdesc;
@@ -37,10 +38,14 @@ class DataService
 
     /**
      * Main function to get all filtered and sortable data
+     * @param int $limit
      * @return array
      */
-    public function getData() : array
+    public function getData($limit = 0) : array
     {
+        if ($limit > 0) {
+            $this->limit = $limit;
+        }
         $items = $this->getJsonItems();
         if ($this->sortby) {
             if ($this->sortdesc) {
@@ -49,7 +54,10 @@ class DataService
                 $items = $items->sortBy($this->sortby);
             }
         }
-        $data = $items->take($this->limit)->values()->all();
+        if ($this->limit) {
+            $items = $items->take($this->limit);
+        }
+        $data = $items->values()->all();
         return $data;
     }
 
@@ -69,11 +77,14 @@ class DataService
      */
     public function getJsonItems() : Collection
     {
-        $jsonString = file_get_contents(base_path($this->getFile()));
-        $jsonData = collect(json_decode($jsonString, true));
-        $items = $jsonData->flatten(2)->filter(function($value) {
-            return $value['isActive'];
-        });
-        return $items;
+        if (!$this->jsonItems) {
+            $jsonString = file_get_contents(base_path($this->getFile()));
+            $jsonData = collect(json_decode($jsonString, true));
+            $items = $jsonData->flatten(2)->filter(function($value) {
+                return $value['isActive'];
+            });
+            $this->jsonItems = $items;
+        }
+        return $this->jsonItems;
     }
 }

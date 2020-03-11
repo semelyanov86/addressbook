@@ -15,8 +15,9 @@ class ApiController extends Controller
      */
     public function index()
     {
-        $count = (new DataService(false, false, false))->getCount();
-        return DataIndexResource::collection((new DataService(request()->limit, request()->sortby, request()->sortdesc))->getData())->additional(['count'=>$count]);
+        $dataModel = new DataService(request()->limit, request()->sortby, request()->sortdesc);
+        $count = $dataModel->getCount();
+        return DataIndexResource::collection($dataModel->getData())->additional(['count'=>$count]);
     }
 
     /**
